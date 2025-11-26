@@ -51,14 +51,15 @@
     border-radius:50%;
     pointer-events:none;
     mix-blend-mode:screen;
-    animation:pulseAnim 1200ms ease-out;
+    animation:pulseAnim 4000ms ease;
     transform:translate(-50%,-50%) scale(0.2);
     opacity:1;
     will-change:transform,opacity,background;
+    transition: 5s;
     }    
     @keyframes pulseAnim{
       0%{transform:translate(-50%,-50%) scale(0.2);opacity:1}
-      75%{transform:translate(-200%,-200%) scale(12);opacity:0.6}
+      50%{transform:translate(-200%,-200%) scale(12);opacity:0.6}
       100%{transform:translate(-200%,-200%) scale(12);opacity:0}
     }
 
@@ -123,6 +124,20 @@
       transition: .2s;
     }
 
+    #pulseDuration{
+      padding: 5px 45px 5px 45px;
+      font-size: 10px;
+      border-radius: 4px;
+      border: 2px solid #ababab;
+      border-radius: 4px;
+      background-color: #232323;
+      color: #fff;
+      margin: 0 0 15px 15px;
+      text-align:left;
+      font-family: Noto sans, sans-serif;
+      letter-spacing: 2px;
+    }
+
   </style>
 </head>
 <body>
@@ -130,6 +145,13 @@
   <div id="sidebar">
     <button id="resetBtn">Reiniciar cores</button>
 
+    <select id="pulseDuration">
+      <option value="1000">1s</option>
+      <option value="2000">2s</option>
+      <option value="3000">3s</option>
+      <option value="4000">4s</option>
+    </select>
+  
     <h2>IMAGENS</h2>
     <div id="thumbContainer"></div>
   </div>
@@ -150,6 +172,7 @@
   const thumbContainer = document.getElementById("thumbContainer");
   const topImage = document.getElementById("topImage");
   const main = document.getElementById("main");
+  const durationSelect = document.getElementById("pulseDuration");
 
   /* CRIA AS MINIATURAS */
   imagens.forEach(nome => {
@@ -227,6 +250,10 @@
   function makePulse(x,y){
     const p = document.createElement('div');
     p.className='pulse';
+
+    const duration = Number(durationSelect.value);
+    p.style.animationDuration = duration + "ms";
+
     p.style.left=x+'px';
     p.style.top=y+'px';
 
@@ -239,7 +266,7 @@
     p.style.boxShadow=`0px 0px 10px ${c}, 00px 00px 20px ${c}`;
 
     document.body.appendChild(p);
-    setTimeout(()=>p.remove(),1300);
+    setTimeout(()=>p.remove(),duration);
   }
 
   window.addEventListener('pointerdown',e=>{
