@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Neuroarte</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%}
+    body{
+      background: #000;
+      overflow:hidden;
+      cursor:crosshair;
+    }
+
+    ::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    /* Track */
+    ::-webkit-scrollbar-track {
+      background: #111; 
+    }
+    
+    /* Handle */
+    ::-webkit-scrollbar-thumb {
+      background: #3b3b3b; 
+    }
+
+    /* Handle on hover */
+    ::-webkit-scrollbar-thumb:hover {
+      background: #555; 
+    }
+
+    #topImage{
+      position: absolute;
+      top: 0px;
+      left: 0px;
+      width:100%; 
+      height: 100%;
+      z-index:10; 
+      background-repeat: repeat;
+      background-position: center center;
+      background-size: cover;
+      mix-blend-mode: multiply;
+      background-image: url('C:/Users/User/Desktop/site neuroarte/img/6.png');
+    }
+
+    .pulse{
+    position:absolute;
+    border-radius:50%;
+    pointer-events:none;
+    mix-blend-mode:screen;
+    animation:pulseAnim 1200ms ease-out;
+    transform:translate(-50%,-50%) scale(0.2);
+    opacity:1;
+    will-change:transform,opacity,background;
+    }    
+    @keyframes pulseAnim{
+      0%{transform:translate(-50%,-50%) scale(0.2);opacity:1}
+      75%{transform:translate(-200%,-200%) scale(12);opacity:0.6}
+      100%{transform:translate(-200%,-200%) scale(12);opacity:0}
+    }
+
+    /* MENU LATERAL */
+    #sidebar{
+    user-select: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width:180px;
+    height: 100vh;
+    background:#111;
+    border-right:2px #333;
+    padding:10px;
+    overflow-y: auto;
+    /* overflow-x: hidden; */
+    z-index:20;
+    }
+    #sidebar h2{
+    color:#fff;
+    font-size:10px;
+    margin-bottom:8px;
+    text-align:center;
+    font-family: Noto sans, sans-serif;
+    letter-spacing: 2px;
+    }
+    .thumb{
+    height: 15%;
+    width:100%;
+    margin-bottom:10px;
+    cursor:pointer;
+    border:2px solid transparent;
+    transition:.2s;
+    }
+    .thumb:hover{
+    border-color:#888;
+    }
+
+    #main{
+    flex:1;
+    position:relative;
+    }
+
+    #resetBtn{
+      border: 2px solid #ababab;
+      border-radius: 4px;
+      padding: 10px 15px;
+      background-color: #000;
+      color: #fff;
+      font-size:10px;
+      margin: 0 0 15px 15px;
+      text-align:center;
+      font-family: Noto sans, sans-serif;
+      letter-spacing: 2px;
+    }
+    #resetBtn:hover{
+      background-color: #232323;
+      border: 2px solid #000000;
+      border-radius: 0px;
+      padding: 12px 17px;
+      margin: -2px 0 13px 13px;
+      transition: .2s;
+    }
+
+  </style>
+</head>
+<body>
+  <!-- MENU LATERAL -->
+  <div id="sidebar">
+    <button id="resetBtn">Reiniciar cores</button>
+
+    <h2>IMAGENS</h2>
+    <div id="thumbContainer"></div>
+  </div>
+
+  <div id="topImage"></div>
+
+<script>
+  /* LISTA DE IMAGENS NA PASTA */
+  const imagens = [
+  "1.png",
+  "2.png",
+  "4.png",
+  "6.png",
+  "7.png",
+  "5.png",
+  ];
+
+  const thumbContainer = document.getElementById("thumbContainer");
+  const topImage = document.getElementById("topImage");
+  const main = document.getElementById("main");
+
+  /* CRIA AS MINIATURAS */
+  imagens.forEach(nome => {
+    const t = document.createElement("img");
+    t.src = "img/" + nome;
+    t.className = "thumb";
+    t.onclick = () => {
+      topImage.style.backgroundImage = `url('img/${nome}')`;
+    };
+    thumbContainer.appendChild(t);
+  });
+
+
+  points = [];
+  const N = 10;
+
+  function randColor(){
+    const h = Math.floor(Math.random()*360);
+    return `hsl(${h},80%,55%)`;
+  }
+
+  // Gera N pontos aleatorios com cores proprias
+  function initPoints(){
+    points = [];
+    for(let i=0;i<N;i++){
+      points.push({
+        x: Math.random()*window.innerWidth,
+        y: Math.random()*window.innerHeight,
+        color: randColor()
+      });
+    }
+  }
+  initPoints();
+
+  // Calcula cor baseada na distancia aos N pontos
+  function sampleColor(x,y){
+    let r=0,g=0,b=0;
+    let totalW=0;
+
+    // Pega a distancia de cada um dos pontos coloridos espalhados pelo canva
+    // e soma R,G e B de cada um dos pontos baseado na distancia
+    // Quanto mais longe o ponto esta, menor a influencia
+    points.forEach(p=>{
+      const dx=x-p.x;
+      const dy=y-p.y;
+      const dist = Math.sqrt(dx*dx+dy*dy)+1;
+      const w = 1/(dist*dist);
+
+
+      const c = document.createElement('canvas');
+      const ctx = c.getContext('2d');
+      ctx.fillStyle = p.color;
+      ctx.fillRect(0,0,1,1);
+      const [R,G,B] = ctx.getImageData(0,0,1,1).data;
+      
+      r += R*w;
+      g += G*w;
+      b += B*w;
+
+      totalW += w;
+    });
+
+    r/=totalW; g/=totalW; b/=totalW;
+
+    if (r <= g && r <= b) {
+      r /= 5;
+    } else if (g <= r && g <= b) {
+      g /= 5;
+    } else {
+      b /= 5;
+    }
+    return `rgb(${r},${g},${b})`;
+  }
+
+  function makePulse(x,y){
+    const p = document.createElement('div');
+    p.className='pulse';
+    p.style.left=x+'px';
+    p.style.top=y+'px';
+
+    const size = 20;
+    p.style.width=size+'px';
+    p.style.height=size+'px';
+
+    const c = sampleColor(x,y);
+    p.style.background=c;
+    p.style.boxShadow=`0px 0px 10px ${c}, 00px 00px 20px ${c}`;
+
+    document.body.appendChild(p);
+    setTimeout(()=>p.remove(),1300);
+  }
+
+  window.addEventListener('pointerdown',e=>{
+    makePulse(e.clientX,e.clientY);
+  });
+
+  document.getElementById("resetBtn").addEventListener("click", () => {
+    initPoints();
+  });
+</script>
+</body>
+</html>
