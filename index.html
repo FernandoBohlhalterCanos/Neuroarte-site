@@ -125,7 +125,7 @@
     }
 
     #pulseDuration{
-      padding: 5px 45px 5px 45px;
+      padding: 5px 25px 5px 25px;
       font-size: 10px;
       border-radius: 4px;
       border: 2px solid #ababab;
@@ -138,6 +138,19 @@
       letter-spacing: 2px;
     }
 
+    #warnBtn{
+      /* width:28px;
+      height:28px; */
+      padding: 1px 10px 4px 10px;
+      border-radius:3px;
+      margin-left: 2px;
+      border:2px solid #aaa;
+      background:#000;
+      color:#fff;
+      font-weight:bold;
+      cursor:pointer;
+      font-size:14px;
+    }
   </style>
 </head>
 <body>
@@ -151,6 +164,8 @@
       <option value="3000">3s</option>
       <option value="4000">4s</option>
     </select>
+
+    <button id="warnBtn">?</button>
   
     <h2>IMAGENS</h2>
     <div id="thumbContainer"></div>
@@ -206,6 +221,7 @@
     }
   }
   initPoints();
+  
 
   // Calcula cor baseada na distancia aos N pontos
   function sampleColor(x,y){
@@ -276,6 +292,10 @@
   document.getElementById("resetBtn").addEventListener("click", () => {
     initPoints();
   });
+
+  document.getElementById("warnBtn").onclick = () => {
+  alert("- Clique na area preta para gerar um pulso de cor \n- Troque as fotos e os parâmetros no menu lateral ao seu gosto");
+  };
 </script>
 </body>
 </html>
